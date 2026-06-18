@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import {
   Search,
-  FileText,
-  Download,
   RefreshCw,
   UserCheck,
   Calendar,
+  FileText,
+  ShieldCheck,
+  Activity,
+  Sparkles,
+  Clock3,
+  TrendingUp,
+  CheckCircle2
 } from "lucide-react";
 
 interface Vote {
@@ -26,192 +32,458 @@ interface Vote {
 }
 
 export default function VotesPage() {
+
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  /* ---------------- FETCH VOTES ---------------- */
+
   const fetchVotes = async () => {
+
     setLoading(true);
+
     try {
-      const res = await fetch("/api/admin/fetch-votes");
+
+      const res = await fetch("/api/admin/fetch-votes", {
+        cache: "no-store"
+      });
+
       const data = await res.json();
-      setVotes(data);
+
+      setVotes(data.votes || []);
+
     } catch (error) {
+
       console.error("Error fetching votes:", error);
+
+      setVotes([]);
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   useEffect(() => {
+
     fetchVotes();
+
   }, []);
 
+  /* ---------------- FILTER ---------------- */
+
   const filteredVotes = votes.filter(
+
     (vote) =>
-      vote.voter?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vote.voter?.voterId.toLowerCase().includes(searchTerm.toLowerCase())
+
+      vote.voter?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+
+      vote.voter?.voterId
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
+
   );
+
+  /* ---------------- UI ---------------- */
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 p-6 md:p-12 overflow-hidden">
-      {/* Premium background elements: soft radial gradient + subtle noise texture */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_#EFF6FF,_transparent_50%)] opacity-60 -z-10" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_#DBEAFE,_transparent_60%)] opacity-40 -z-10" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIiAvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC4wMjUiIC8+PC9zdmc+')] opacity-20 -z-10" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+    <div className="relative min-h-screen overflow-hidden bg-[#050816] text-white">
+
+      {/* BACKGROUND EFFECTS */}
+
+      <div className="absolute inset-0">
+
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-cyan-500/20 blur-3xl rounded-full" />
+
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-700/20 blur-3xl rounded-full" />
+
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:45px_45px]" />
+
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">
+
+        {/* HEADER */}
+
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12"
+        >
+
           <div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Election Audit Log
+
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 backdrop-blur-xl px-4 py-2 rounded-full text-sm mb-5">
+
+              <Sparkles size={15} className="text-cyan-400" />
+
+              Real-Time Election Monitoring
+
+            </div>
+
+            <h1 className="text-4xl md:text-6xl font-black leading-tight">
+
+              Election Audit <br />
+
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text">
+                Dashboard
+              </span>
+
             </h1>
-            <p className="text-slate-600 font-medium mt-2 max-w-2xl">
-              Real-time verification of cast ballots and voter integrity.
+
+            <p className="text-slate-400 mt-5 max-w-2xl leading-relaxed">
+              Securely monitor, verify and analyze election votes
+              with live transparency and advanced audit tracking.
             </p>
+
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchVotes}
-              className="p-3 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl text-slate-700 hover:text-blue-600 hover:border-blue-300 transition-all shadow-md hover:shadow-lg active:scale-95"
-              aria-label="Refresh votes"
-            >
-              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-            </button>
-            <button className="flex items-center gap-2 px-5 py-3 bg-slate-800 text-white rounded-2xl font-semibold shadow-xl shadow-slate-200/50 hover:bg-blue-700 transition-all active:scale-95">
-              <Download size={18} />
-              <span>Export CSV</span>
-            </button>
-          </div>
-        </div>
+          {/* REFRESH BUTTON */}
 
-        {/* Quick Stats Card */}
-        <div className="mb-8">
-          <div className="inline-block bg-white/80 backdrop-blur-sm p-6 rounded-[2rem] border border-slate-200/70 shadow-xl shadow-slate-200/50">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center">
-                <UserCheck size={28} />
-              </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={fetchVotes}
+            className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 shadow-2xl hover:shadow-cyan-500/30 transition-all font-semibold"
+          >
+
+            <RefreshCw
+              size={18}
+              className={loading ? "animate-spin" : ""}
+            />
+
+            Refresh Data
+
+          </motion.button>
+
+        </motion.div>
+
+        {/* STATS */}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+          {/* TOTAL VOTES */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.03 }}
+            className="bg-white/10 border border-white/10 backdrop-blur-2xl rounded-3xl p-6 relative overflow-hidden"
+          >
+
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/20 blur-3xl rounded-full" />
+
+            <div className="flex items-center justify-between">
+
               <div>
-                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                  Total Ballots Cast
+
+                <p className="uppercase text-xs tracking-widest text-slate-400 font-bold">
+                  Total Votes
                 </p>
-                <p className="text-4xl font-black text-slate-900">{votes.length}</p>
+
+                <h2 className="text-5xl font-black mt-3">
+                  {votes.length}
+                </h2>
+
               </div>
+
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 shadow-xl">
+
+                <UserCheck size={30} />
+
+              </div>
+
             </div>
-          </div>
+
+            <div className="mt-6 flex items-center gap-2 text-emerald-400 text-sm">
+
+              <TrendingUp size={16} />
+
+              Votes updated instantly
+
+            </div>
+
+          </motion.div>
+
+          {/* SYSTEM STATUS */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ scale: 1.03 }}
+            className="bg-white/10 border border-white/10 backdrop-blur-2xl rounded-3xl p-6"
+          >
+
+            <div className="flex items-center justify-between">
+
+              <div>
+
+                <p className="uppercase text-xs tracking-widest text-slate-400 font-bold">
+                  Security Status
+                </p>
+
+                <h2 className="text-3xl font-black mt-3">
+                  Protected
+                </h2>
+
+              </div>
+
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 shadow-xl">
+
+                <ShieldCheck size={30} />
+
+              </div>
+
+            </div>
+
+            <div className="mt-6 flex items-center gap-2 text-emerald-400 text-sm">
+
+              <CheckCircle2 size={16} />
+
+              Encrypted vote tracking enabled
+
+            </div>
+
+          </motion.div>
+
+          {/* LIVE TRACK */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ scale: 1.03 }}
+            className="bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
+          >
+
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full" />
+
+            <div className="flex items-center justify-between">
+
+              <div>
+
+                <p className="uppercase text-xs tracking-widest text-cyan-100 font-bold">
+                  Live Tracking
+                </p>
+
+                <h2 className="text-3xl font-black mt-3">
+                  ACTIVE
+                </h2>
+
+              </div>
+
+              <Activity size={30} />
+
+            </div>
+
+            <div className="mt-6 flex items-center gap-2 text-cyan-100 text-sm">
+
+              <Clock3 size={16} />
+
+              Real-time election audit
+
+            </div>
+
+          </motion.div>
+
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl shadow-slate-200/70 border border-slate-200/80 overflow-hidden">
-          {/* Table Toolbar */}
-          <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/60">
-            <div className="relative w-full sm:max-w-md">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Search by name or Voter ID..."
-                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-900 placeholder:text-slate-400"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="text-sm text-slate-500 font-medium">
-              {filteredVotes.length} record{filteredVotes.length !== 1 ? "s" : ""} found
-            </div>
+        {/* SEARCH */}
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white/10 border border-white/10 backdrop-blur-2xl rounded-3xl p-6 mb-8 flex flex-col lg:flex-row justify-between gap-5"
+        >
+
+          <div className="relative w-full lg:max-w-xl">
+
+            <Search
+              className="absolute left-4 top-4 text-slate-400"
+              size={18}
+            />
+
+            <input
+              type="text"
+              placeholder="Search voter name or voter ID..."
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-5 outline-none text-white placeholder:text-slate-500 focus:border-cyan-400 transition"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
           </div>
+
+          <div className="flex items-center gap-2 text-slate-300 font-medium">
+
+            <FileText size={18} />
+
+            {filteredVotes.length} Record(s) Found
+
+          </div>
+
+        </motion.div>
+
+        {/* TABLE */}
+
+        <div className="bg-white/10 border border-white/10 backdrop-blur-2xl rounded-[30px] overflow-hidden shadow-2xl">
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-100/80">
-                  <th className="px-8 py-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Voter Details
+
+            <table className="w-full">
+
+              <thead className="bg-white/5 border-b border-white/10">
+
+                <tr className="text-slate-300 uppercase text-xs tracking-widest">
+
+                  <th className="p-5 text-left">
+                    Voter
                   </th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-slate-500 text-center">
-                    Identity
+
+                  <th className="p-5 text-left">
+                    Voter ID
                   </th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Ballot Cast To
+
+                  <th className="p-5 text-left">
+                    Selected Nominee
                   </th>
-                  <th className="px-6 py-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Timestamp
+
+                  <th className="p-5 text-left">
+                    Date
                   </th>
+
                 </tr>
+
               </thead>
-              <tbody className="divide-y divide-slate-100">
+
+              <tbody>
+
                 <AnimatePresence>
-                  {filteredVotes.map((vote, idx) => (
+
+                  {filteredVotes.map((vote, i) => (
+
                     <motion.tr
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
                       key={vote._id}
-                      className="hover:bg-blue-50/50 transition-colors group"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="border-b border-white/5 hover:bg-cyan-500/5 transition-all"
                     >
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center text-slate-700 font-bold text-sm uppercase shadow-inner">
-                            {vote.voter?.name?.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900">
-                              {vote.voter?.name}
-                            </p>
-                            <p className="text-slate-500 text-xs font-medium">
-                              {vote.voter?.phone}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-6 text-center">
-                        <span className="inline-flex items-center px-3 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono text-xs font-bold shadow-sm">
-                          {vote.voter?.voterId}
-                        </span>
-                      </td>
-                      <td className="px-6 py-6">
+
+                      {/* VOTER */}
+
+                      <td className="p-5">
+
                         <div>
-                          <p className="font-bold text-blue-700 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+
+                          <p className="font-semibold text-white">
+                            {vote.voter?.name}
+                          </p>
+
+                          <p className="text-sm text-slate-400 mt-1">
+                            {vote.voter?.phone}
+                          </p>
+
+                        </div>
+
+                      </td>
+
+                      {/* VOTER ID */}
+
+                      <td className="p-5">
+
+                        <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-cyan-300 font-mono text-sm">
+
+                          {vote.voter?.voterId}
+
+                        </span>
+
+                      </td>
+
+                      {/* NOMINEE */}
+
+                      <td className="p-5">
+
+                        <div>
+
+                          <p className="font-semibold text-cyan-300">
                             {vote.nominee?.name}
                           </p>
-                          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider ml-3.5">
+
+                          <p className="text-sm text-slate-400 mt-1">
                             {vote.nominee?.party}
                           </p>
+
                         </div>
+
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="flex items-center gap-2 text-slate-600 font-medium text-sm">
-                          <Calendar size={14} className="text-slate-400" />
-                          {new Date(vote.createdAt).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+
+                      {/* DATE */}
+
+                      <td className="p-5">
+
+                        <div className="flex items-center gap-2 text-slate-300">
+
+                          <Calendar size={15} />
+
+                          {new Date(vote.createdAt).toLocaleDateString()}
+
                         </div>
+
                       </td>
+
                     </motion.tr>
+
                   ))}
+
                 </AnimatePresence>
+
               </tbody>
+
             </table>
 
-            {filteredVotes.length === 0 && !loading && (
-              <div className="py-20 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full text-slate-400 mb-4">
-                  <FileText size={32} />
-                </div>
-                <p className="text-slate-700 font-medium">No voting records found.</p>
-              </div>
-            )}
           </div>
+
+          {/* EMPTY STATE */}
+
+          {filteredVotes.length === 0 && !loading && (
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-24 text-center"
+            >
+
+              <FileText
+                size={60}
+                className="mx-auto text-slate-500 mb-5"
+              />
+
+              <h2 className="text-2xl font-bold text-white mb-2">
+                No Voting Records Found
+              </h2>
+
+              <p className="text-slate-400">
+                Try searching with another voter ID or name.
+              </p>
+
+            </motion.div>
+
+          )}
+
         </div>
+
       </div>
+
     </div>
+
   );
+
 }

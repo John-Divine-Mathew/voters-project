@@ -13,6 +13,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { logout } from "../utils/auth";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -26,8 +27,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Election Results", icon: <BarChart3 size={20} />, path: "/admin/fetched-votes" },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Or your auth utility
+  const handleLogout = async () => {
+    await logout();
     router.push("/login");
   };
 

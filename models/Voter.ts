@@ -3,6 +3,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 // 1. Define the TypeScript Interface
 export interface IVoter extends Document {
   name: string;
+  email: string;
+  password: string;
   phone: string;
   aadhar: string;
   dob: Date;
@@ -19,6 +21,18 @@ const VoterSchema = new Schema<IVoter>(
       type: String,
       required: [true, 'Name is required'],
       trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      select: false,
     },
     phone: {
       type: String,
